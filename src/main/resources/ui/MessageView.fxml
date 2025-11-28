@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="emailclient.controller.MessageViewController"
+            prefWidth="600" prefHeight="500">
+
+    <top>
+        <VBox spacing="6" style="-fx-padding: 10;">
+            <Label fx:id="subjectLabel" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+            <Label fx:id="fromLabel" />
+            <Label fx:id="toLabel" />
+            <Label fx:id="dateLabel" />
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-padding: 10;">
+            <TextArea fx:id="bodyArea" editable="false" wrapText="true" />
+        </ScrollPane>
+    </center>
+
+    <bottom>
+        <VBox spacing="6" style="-fx-padding: 10;">
+            <Label text="Вкладення:" style="-fx-font-weight: bold;" />
+            <ListView fx:id="attachmentsList" prefHeight="120"/>
+            <HBox spacing="10">
+                <Button text="Завантажити" onAction="#handleDownloadAttachment"/>
+                <Button text="Видалити" onAction="#handleDeleteMessage"/>
+                <Button text="Перемістити" onAction="#handleMove"/>
+            </HBox>
+        </VBox>
+    </bottom>
+
+</BorderPane>

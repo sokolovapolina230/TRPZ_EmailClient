@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="emailclient.controller.MailboxController">
+
+    <!-- ==============================================
+         LEFT SIDE: Accounts + Folders
+         ============================================== -->
+    <left>
+        <VBox spacing="10" prefWidth="220" style="-fx-background-color: #f3f3f3; -fx-padding: 10;">
+
+            <!-- Accounts Label -->
+            <Label text="Акаунти" style="-fx-font-size: 14; -fx-font-weight: bold;" />
+
+            <!-- Accounts List -->
+            <ListView fx:id="accountsListView" prefHeight="150" />
+
+            <Separator />
+
+            <!-- Folders Label -->
+            <Label text="Папки" style="-fx-font-size: 14; -fx-font-weight: bold;" />
+
+            <!-- Folders List -->
+            <ListView fx:id="foldersListView" VBox.vgrow="ALWAYS" />
+
+            <!-- Buttons -->
+            <HBox spacing="10">
+                <Button text="Нова папка" onAction="#handleCreateFolder" />
+                <Button text="Видалити" onAction="#handleDeleteFolder" />
+            </HBox>
+
+        </VBox>
+    </left>
+
+    <!-- ==============================================
+         CENTER: Message List
+         ============================================== -->
+    <center>
+        <VBox spacing="10" style="-fx-padding: 10;">
+
+            <!-- Toolbar -->
+            <ToolBar>
+                <Button text="Написати" onAction="#handleNewMessage"/>
+                <Button text="Оновити" onAction="#handleRefresh"/>
+                <Button text="Отримати пошту" onAction="#handleSyncInbox"/>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button text="Вийти" onAction="#handleLogout"/>
+            </ToolBar>
+
+            <!-- Messages Table -->
+            <TableView fx:id="messagesTable" VBox.vgrow="ALWAYS">
+
+                <columns>
+
+                    <TableColumn fx:id="colFrom" text="Від кого" prefWidth="180"/>
+                    <TableColumn fx:id="colSubject" text="Тема" prefWidth="250"/>
+                    <TableColumn fx:id="colDate" text="Дата" prefWidth="150"/>
+                    <TableColumn fx:id="colImportance" text="!" prefWidth="40"/>
+
+                </columns>
+
+            </TableView>
+
+        </VBox>
+    </center>
+
+    <!-- ==============================================
+         BOTTOM: MessageView (embedded)
+         ============================================== -->
+    <bottom>
+        <VBox fx:id="messageViewContainer" style="-fx-padding: 10; -fx-background-color: #fafafa;" />
+    </bottom>
+
+</BorderPane>

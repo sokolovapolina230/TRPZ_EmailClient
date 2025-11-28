@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="emailclient.controller.MessageFormController"
+            prefWidth="600" prefHeight="500">
+
+    <top>
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <TextField fx:id="toField" promptText="Кому"/>
+            <TextField fx:id="subjectField" promptText="Тема"/>
+        </VBox>
+    </top>
+
+    <center>
+        <TextArea fx:id="bodyArea" wrapText="true" style="-fx-padding: 10;"/>
+    </center>
+
+    <right>
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <Label text="Вкладення:"/>
+            <ListView fx:id="attachmentsList" prefWidth="200" prefHeight="200"/>
+
+            <HBox spacing="10">
+                <Button text="+" onAction="#handleAddAttachment"/>
+                <Button text="-" onAction="#handleRemoveAttachment"/>
+            </HBox>
+        </VBox>
+    </right>
+
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 10;">
+            <Button text="Зберегти чернетку" onAction="#handleSaveDraft"/>
+            <Button text="Надіслати" onAction="#handleSend"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
