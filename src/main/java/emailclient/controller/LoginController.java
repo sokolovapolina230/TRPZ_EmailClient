@@ -1,7 +1,7 @@
 package emailclient.controller;
 
+import emailclient.facade.MailFacade;
 import emailclient.model.User;
-import emailclient.service.UserService;
 import emailclient.view.SceneManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -10,18 +10,24 @@ public class LoginController {
 
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
+    @FXML private Label errorLabel;
 
-    private final UserService userService = new UserService();
+    private final MailFacade facade = MailFacade.getInstance();
 
     @FXML
     private void handleLogin() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+        String username = usernameField.getText().trim();
+        String password = passwordField.getText().trim();
 
-        User user = userService.login(username, password);
+        if (username.isEmpty() || password.isEmpty()) {
+            showError("Заповніть усі поля");
+            return;
+        }
+
+        User user = facade.login(username, password);
 
         if (user == null) {
-            new Alert(Alert.AlertType.ERROR, "Невірний логін або пароль!").show();
+            showError("Невірний логін або пароль");
             return;
         }
 
@@ -29,8 +35,12 @@ public class LoginController {
     }
 
     @FXML
-    private void handleShowRegister() {
+    private void handleOpenCreate() {
         SceneManager.showRegister();
     }
-}
 
+    private void showError(String text) {
+        errorLabel.setText(text);
+        errorLabel.setVisible(true);
+    }
+}

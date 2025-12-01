@@ -27,4 +27,10 @@ public class Folder {
 
     public FolderType getType() { return type; }
     public void setType(FolderType type) { this.type = type; }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
 }

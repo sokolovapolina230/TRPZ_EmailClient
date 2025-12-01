@@ -2,7 +2,6 @@ package emailclient.service.protocol;
 
 import emailclient.model.Account;
 import emailclient.model.Message;
-import emailclient.model.enums.Importance;
 import emailclient.service.MessageService;
 
 import java.util.List;
@@ -14,7 +13,7 @@ public class ImapStrategy implements MailProtocol {
 
     @Override
     public void connect(Account account) {
-        System.out.println("📡 IMAP CONNECT " + account.getImapHost() + ":" + account.getImapPort());
+        System.out.println("IMAP CONNECT " + account.getImapHost() + ":" + account.getImapPort());
         connected = true;
     }
 
@@ -26,6 +25,7 @@ public class ImapStrategy implements MailProtocol {
         messageService.createIncoming(
                 inboxFolderId,
                 "server@example.com",
+                "user@example.com",
                 "IMAP лист",
                 "Тест IMAP контент"
         );
@@ -35,7 +35,7 @@ public class ImapStrategy implements MailProtocol {
 
     @Override
     public void disconnect() {
-        System.out.println("🔌 IMAP DISCONNECT");
+        System.out.println("IMAP DISCONNECT");
         connected = false;
     }
 }

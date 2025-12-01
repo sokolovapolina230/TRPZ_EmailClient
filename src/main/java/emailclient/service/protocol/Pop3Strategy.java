@@ -2,7 +2,6 @@ package emailclient.service.protocol;
 
 import emailclient.model.Account;
 import emailclient.model.Message;
-import emailclient.model.enums.Importance;
 import emailclient.service.MessageService;
 
 import java.util.List;
@@ -14,7 +13,7 @@ public class Pop3Strategy implements MailProtocol {
 
     @Override
     public void connect(Account account) {
-        System.out.println("📡 POP3 CONNECT " + account.getPop3Host() + ":" + account.getPop3Port());
+        System.out.println("POP3 CONNECT " + account.getPop3Host() + ":" + account.getPop3Port());
         connected = true;
     }
 
@@ -26,6 +25,7 @@ public class Pop3Strategy implements MailProtocol {
         messageService.createIncoming(
                 inboxFolderId,
                 "pop3@example.com",
+                "user@example.com",
                 "POP3 Лист",
                 "POP3 Контент"
         );
@@ -33,9 +33,10 @@ public class Pop3Strategy implements MailProtocol {
         return messageService.getMessages(inboxFolderId);
     }
 
+
     @Override
     public void disconnect() {
-        System.out.println("🔌 POP3 DISCONNECT");
+        System.out.println("POP3 DISCONNECT");
         connected = false;
     }
 }

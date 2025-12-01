@@ -11,119 +11,192 @@ import java.util.List;
 
 public class MessageRepository {
 
-    public int add(Message m) {
-        String sql = """
-          INSERT INTO messages
-          (folder_id, sender, recipient, subject, body, is_read, importance, date_sent, is_draft)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """;
-        try (Connection c = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            ps.setInt(1, m.getFolderId());
-            ps.setString(2, m.getSender());
-            ps.setString(3, m.getRecipient());
-            ps.setString(4, m.getSubject());
-            ps.setString(5, m.getBody());
-            ps.setBoolean(6, m.isRead());
-            ps.setString(7, m.getImportance().name());
-            if (m.getDateSent() != null) ps.setString(8, m.getDateSent().toString());
-            else ps.setNull(8, Types.VARCHAR);
-            ps.setBoolean(9, m.isDraft());
-
-            ps.executeUpdate();
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) return rs.getInt(1);
-            }
-            throw new RuntimeException("Не вдалося отримати ID");
-        } catch (SQLException e) {
-            throw new RuntimeException("Помилка insert: " + e.getMessage(), e);
-        }
+    private Message map(ResultSet rs) throws SQLException {
+        Message m = new Message();
+        m.setId(rs.getInt("id"));
+        m.setFolderId(rs.getInt("folder_id"));
+        m.setSender(rs.getString("sender"));
+        m.setRecipient(rs.getString("recipient"));
+        m.setSubject(rs.getString("subject"));
+        m.setBody(rs.getString("body"));
+        m.setRead(rs.getInt("is_read") == 1);
+        m.setImportance(Importance.valueOf(rs.getString("importance")));
+        String ds = rs.getString("date_sent");
+        m.setDateSent(ds == null ? null : LocalDateTime.parse(ds));
+        m.setDraft(rs.getInt("is_draft") == 1);
+        return m;
     }
 
     public Message getById(int id) {
         String sql = "SELECT * FROM messages WHERE id = ?";
-        try (Connection c = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setInt(1, id);
+            try (ResultSet rs = st.executeQuery()) {
                 return rs.next() ? map(rs) : null;
             }
-        } catch (SQLException e) {
-            throw new RuntimeException("Помилка getById: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("getById помилка", e);
         }
     }
 
-    public List<Message> getByFolderId(int folderId) {
-        String sql = "SELECT * FROM messages WHERE folder_id = ? ORDER BY COALESCE(date_sent,'9999-12-31') DESC, id DESC";
+    public List<Message> getByFolder(int folderId) {
         List<Message> list = new ArrayList<>();
-        try (Connection c = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, folderId);
-            try (ResultSet rs = ps.executeQuery()) {
+        String sql = "SELECT * FROM messages WHERE folder_id = ? ORDER BY id DESC";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setInt(1, folderId);
+            try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) list.add(map(rs));
             }
-            return list;
-        } catch (SQLException e) {
-            throw new RuntimeException("Помилка getByFolderId: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("getByFolder помилка", e);
+        }
+        return list;
+    }
+
+    public int createIncoming(int folderId, Message m) {
+        String sql = """
+            INSERT INTO messages
+            (folder_id, sender, recipient, subject, body, is_read, importance, date_sent, is_draft)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
+            """;
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement st = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            st.setInt(1, folderId);
+            st.setString(2, m.getSender());
+            st.setString(3, m.getRecipient());
+            st.setString(4, m.getSubject());
+            st.setString(5, m.getBody());
+            st.setInt(6, m.isRead() ? 1 : 0);
+            st.setString(7, m.getImportance().name());
+            st.setString(8, m.getDateSent() == null ? null : m.getDateSent().toString());
+            st.executeUpdate();
+            try (ResultSet rs = st.getGeneratedKeys()) {
+                return rs.next() ? rs.getInt(1) : -1;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("createIncoming помилка", e);
         }
     }
 
-    // ОДИН загальний update — без бізнес-логіки
-    public void update(Message m) {
+    public int createDraft(int folderId, Message m) {
         String sql = """
-            UPDATE messages SET 
-                folder_id = ?, recipient = ?, subject = ?, body = ?,
-                is_read = ?, importance = ?, date_sent = ?, is_draft = ?
+            INSERT INTO messages
+            (folder_id, sender, recipient, subject, body, is_read, importance, date_sent, is_draft)
+            VALUES (?, ?, ?, ?, ?, 0, ?, NULL, 1)
+            """;
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement st = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            st.setInt(1, folderId);
+            st.setString(2, m.getSender());
+            st.setString(3, m.getRecipient());
+            st.setString(4, m.getSubject());
+            st.setString(5, m.getBody());
+            st.setString(6, m.getImportance().name());
+            st.executeUpdate();
+            try (ResultSet rs = st.getGeneratedKeys()) {
+                return rs.next() ? rs.getInt(1) : -1;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("createDraft помилка", e);
+        }
+    }
+
+    public void updateDraft(int id, String subject, String body, String recipient, Importance importance) {
+        String sql = """
+            UPDATE messages
+            SET subject = ?, body = ?, recipient = ?, importance = ?
+            WHERE id = ? AND is_draft = 1
+            """;
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setString(1, subject);
+            st.setString(2, body);
+            st.setString(3, recipient);
+            st.setString(4, importance.name());
+            st.setInt(5, id);
+            st.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("updateDraft помилка", e);
+        }
+    }
+
+    public void markDraftAsSent(int id, int sentFolderId) {
+        String sql = """
+            UPDATE messages
+            SET folder_id = ?, is_draft = 0, date_sent = ?
             WHERE id = ?
-        """;
-        try (Connection c = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+            """;
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setInt(1, sentFolderId);
+            st.setString(2, LocalDateTime.now().toString());
+            st.setInt(3, id);
+            st.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("markDraftAsSent помилка", e);
+        }
+    }
 
-            ps.setInt(1, m.getFolderId());
-            ps.setString(2, m.getRecipient());
-            ps.setString(3, m.getSubject());
-            ps.setString(4, m.getBody());
-            ps.setBoolean(5, m.isRead());
-            ps.setString(6, m.getImportance().name());
-            if (m.getDateSent() != null) ps.setString(7, m.getDateSent().toString());
-            else ps.setNull(7, Types.VARCHAR);
-            ps.setBoolean(8, m.isDraft());
-            ps.setInt(9, m.getId());
+    public void updateFolder(int id, int newFolderId) {
+        String sql = "UPDATE messages SET folder_id = ? WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setInt(1, newFolderId);
+            st.setInt(2, id);
+            st.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("updateFolder помилка", e);
+        }
+    }
 
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Помилка update: " + e.getMessage(), e);
+    public int copyMessage(Message m, int targetFolderId) {
+        String sql = """
+            INSERT INTO messages
+            (folder_id, sender, recipient, subject, body, is_read, importance, date_sent, is_draft)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """;
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement st = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            st.setInt(1, targetFolderId);
+            st.setString(2, m.getSender());
+            st.setString(3, m.getRecipient());
+            st.setString(4, m.getSubject());
+            st.setString(5, m.getBody());
+            st.setInt(6, m.isRead() ? 1 : 0);
+            st.setString(7, m.getImportance().name());
+            st.setString(8, m.getDateSent() == null ? null : m.getDateSent().toString());
+            st.setInt(9, m.isDraft() ? 1 : 0);
+            st.executeUpdate();
+            try (ResultSet rs = st.getGeneratedKeys()) {
+                return rs.next() ? rs.getInt(1) : -1;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("copyMessage помилка", e);
+        }
+    }
+
+    public void setRead(int id, boolean read) {
+        String sql = "UPDATE messages SET is_read = ? WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setInt(1, read ? 1 : 0);
+            st.setInt(2, id);
+            st.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Помилка updateRead", e);
         }
     }
 
     public void delete(int id) {
         String sql = "DELETE FROM messages WHERE id = ?";
-        try (Connection c = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Помилка delete: " + e.getMessage(), e);
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setInt(1, id);
+            st.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("delete помилка", e);
         }
     }
-
-    private Message map(ResultSet rs) throws SQLException {
-        String dateStr = rs.getString("date_sent");
-        LocalDateTime sent = (dateStr != null) ? LocalDateTime.parse(dateStr) : null;
-
-        return new Message.Builder()
-                .id(rs.getInt("id"))
-                .folderId(rs.getInt("folder_id"))
-                .sender(rs.getString("sender"))
-                .recipient(rs.getString("recipient"))
-                .subject(rs.getString("subject"))
-                .body(rs.getString("body"))
-                .isRead(rs.getBoolean("is_read"))
-                .importance(Importance.valueOf(rs.getString("importance")))
-                .dateSent(sent)
-                .isDraft(rs.getBoolean("is_draft"))
-                .build();
-    }
 }
-

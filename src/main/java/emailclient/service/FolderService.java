@@ -10,9 +10,6 @@ public class FolderService {
 
     private final FolderRepository folderRepository = new FolderRepository();
 
-    /**
-     * Повертає папки акаунта
-     */
     public List<Folder> getFoldersByAccount(int accountId) {
         try {
             return folderRepository.getByAccountId(accountId);
@@ -21,9 +18,6 @@ public class FolderService {
         }
     }
 
-    /**
-     * Створюємо КАСТОМНУ папку
-     */
     public void createCustomFolder(int accountId, String name) {
 
         if (name == null || name.isBlank()) {
@@ -39,9 +33,6 @@ public class FolderService {
         }
     }
 
-    /**
-     * Створення СИСТЕМНИХ папок
-     */
     public void createDefaultFolders(int accountId) {
         createSystemFolder(accountId, "Вхідні", FolderType.INBOX);
         createSystemFolder(accountId, "Відправлені", FolderType.SENT);
@@ -60,9 +51,6 @@ public class FolderService {
         }
     }
 
-    /**
-     * Видалення папки (тільки кастомних)
-     */
     public void deleteFolder(Folder folder) {
         if (folder.getType().isSystem()) {
             throw new RuntimeException("Неможливо видалити системну папку!");
@@ -75,9 +63,6 @@ public class FolderService {
         }
     }
 
-    /**
-     * Перейменування кастомних папок
-     */
     public void renameFolder(Folder folder, String newName) {
 
         if (folder.getType().isSystem()) {
@@ -97,9 +82,6 @@ public class FolderService {
         }
     }
 
-    /**
-     * УНІФІКОВАНЕ створення папки (фабричний метод)
-     */
     private Folder buildFolder(int accountId, String name, FolderType type) {
         Folder folder = new Folder();
         folder.setAccountId(accountId);
@@ -107,4 +89,5 @@ public class FolderService {
         folder.setType(type);
         return folder;
     }
+
 }

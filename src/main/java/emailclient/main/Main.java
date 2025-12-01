@@ -11,17 +11,17 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         try {
-            // 1. Ініціалізація бази
+            // Ініціалізація бази
             DatabaseInitializer.initialize();
 
 
-            // 2. Ініціалізація SceneManager
+            // Ініціалізація SceneManager
             SceneManager.init(stage);
 
             stage.setTitle("Email Client");
             stage.getIcons().add(new Image(getClass().getResourceAsStream("/icon/mail.png")));
 
-            // 3. Відкриваємо Login
+            // Відкриваємо Login
             SceneManager.showLogin();
 
         } catch (Exception e) {

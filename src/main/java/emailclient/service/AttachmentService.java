@@ -30,7 +30,7 @@ public class AttachmentService {
             throw new IllegalArgumentException("Файл порожній");
 
         if (sourceFile.length() > MAX_FILE_SIZE)
-            throw new IllegalArgumentException("Файл занадто великий (10MB максимум)");
+            throw new IllegalArgumentException("Файл завеликий (максимум 10MB)");
 
         String safeName = Path.of(sourceFile.getName()).getFileName().toString();
         if (safeName.contains(".."))
@@ -59,6 +59,31 @@ public class AttachmentService {
         return id;
     }
 
+    public void copyAttachment(Attachment original, int newMessageId) {
+        try {
+            File src = new File(original.getFilePath());
+            if (!src.exists()) return;
+
+            String safeName = Path.of(original.getFileName()).getFileName().toString();
+            String storedName = UUID.randomUUID() + "_" + safeName;
+            Path newPath = Path.of(ATTACHMENTS_DIR, storedName);
+
+            Files.copy(src.toPath(), newPath, StandardCopyOption.REPLACE_EXISTING);
+
+            Attachment copy = new Attachment.Builder()
+                    .messageId(newMessageId)
+                    .fileName(original.getFileName())
+                    .filePath(newPath.toString())
+                    .size(src.length())
+                    .build();
+
+            repo.add(copy);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Помилка копіювання вкладення", e);
+        }
+    }
+
     public void deleteAttachment(int attachmentId) {
         Attachment a = repo.getById(attachmentId);
         if (a == null)
@@ -85,4 +110,3 @@ public class AttachmentService {
         return repo.getByMessageId(messageId);
     }
 }
-

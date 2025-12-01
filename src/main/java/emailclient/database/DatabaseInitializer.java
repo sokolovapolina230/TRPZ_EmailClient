@@ -14,11 +14,10 @@ public class DatabaseInitializer {
 
             String sql = loadSQLScript("/sql/schema.sql");
             if (sql == null) {
-                System.err.println("⚠️ SQL-файл schema.sql не знайдено.");
+                System.err.println("SQL-файл schema.sql не знайдено.");
                 return;
             }
 
-            // Ділимо файл на окремі команди
             for (String command : sql.split(";")) {
                 String c = command.trim();
                 if (!c.isEmpty()) {
@@ -26,10 +25,10 @@ public class DatabaseInitializer {
                 }
             }
 
-            System.out.println("✅ Схему БД створено або оновлено.");
+            System.out.println("Схему БД створено або оновлено.");
 
         } catch (Exception e) {
-            System.err.println("❌ Помилка ініціалізації БД: " + e.getMessage());
+            System.err.println("Помилка ініціалізації БД: " + e.getMessage());
         }
     }
 
@@ -48,7 +47,7 @@ public class DatabaseInitializer {
             return sb.toString();
 
         } catch (Exception e) {
-            System.err.println("❌ Помилка читання SQL-файлу: " + e.getMessage());
+            System.err.println("Помилка читання SQL-файлу: " + e.getMessage());
             return null;
         }
     }

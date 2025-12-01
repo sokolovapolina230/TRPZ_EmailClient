@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="emailclient.controller.CreateAccountController"
+      alignment="TOP_CENTER"
+      spacing="20"
+      style="-fx-padding: 35; -fx-background-color: #fafafa;"
+      stylesheets="@../styles/error.css">
+
+    <Label text="Додати поштовий акаунт"
+           style="-fx-font-size: 22; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="15" vgap="12">
+        <columnConstraints>
+            <ColumnConstraints halignment="RIGHT" minWidth="80"/>
+            <ColumnConstraints minWidth="250"/>
+        </columnConstraints>
+
+        <Label text="Email:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="emailField"
+                   GridPane.rowIndex="0" GridPane.columnIndex="1"
+                   prefWidth="260"/>
+
+        <Label text="Пароль:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <PasswordField fx:id="passwordField"
+                       GridPane.rowIndex="1" GridPane.columnIndex="1"
+                       prefWidth="260"/>
+    </GridPane>
+
+    <Label fx:id="errorLabel" text="" style="-fx-text-fill: red;"/>
+
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Створити" onAction="#handleCreate" prefWidth="120"/>
+        <Button text="Назад" onAction="#handleBack" prefWidth="120"/>
+    </HBox>
+
+</VBox>

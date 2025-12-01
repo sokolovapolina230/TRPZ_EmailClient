@@ -17,4 +17,3 @@ public class UserService {
         return repo.createUser(username, password);
     }
 }
-

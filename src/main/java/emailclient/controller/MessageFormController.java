@@ -1,13 +1,14 @@
 package emailclient.controller;
 
+import emailclient.facade.MailFacade;
 import emailclient.model.Message;
 import emailclient.model.enums.Importance;
 import emailclient.service.MailService;
-import emailclient.service.MessageService;
+import emailclient.util.ValidationUtils;
 
 import javafx.fxml.FXML;
-import javafx.stage.FileChooser;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -19,74 +20,82 @@ public class MessageFormController {
     @FXML private TextField subjectField;
     @FXML private TextArea bodyArea;
     @FXML private ListView<String> attachmentsList;
+    @FXML private Label errorLabel;
 
-    private final MessageService messageService = new MessageService();
     private MailService mailService;
+    private final MailFacade facade = MailFacade.getInstance();
 
+    private int draftsFolderId;
+    private int sentFolderId;
+
+    private Message editingDraft;
     private final List<File> newAttachments = new ArrayList<>();
 
-    private Integer folderId;     // папка (Sent або Drafts)
-    private Integer accountId;
-    private Message editingDraft; // якщо редагуємо чернетку
-
-    // ----------------------------------------------------------
-    //  ІНІЦІАЛІЗАЦІЯ ФОРМИ
-    // ----------------------------------------------------------
-    public void init(MailService mailService, int folderId, int accountId) {
+    public void init(MailService mailService, int draftsFolderId, int sentFolderId) {
         this.mailService = mailService;
-        this.folderId = folderId;
-        this.accountId = accountId;
+        this.draftsFolderId = draftsFolderId;
+        this.sentFolderId = sentFolderId;
     }
 
     public void loadDraft(Message draft) {
         this.editingDraft = draft;
-
         toField.setText(draft.getRecipient());
         subjectField.setText(draft.getSubject());
         bodyArea.setText(draft.getBody());
     }
 
-    // ----------------------------------------------------------
-    //  ДОДАТИ ВКЛАДЕННЯ
-    // ----------------------------------------------------------
     @FXML
     private void handleAddAttachment() {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Виберіть файл");
-
         File file = chooser.showOpenDialog(attachmentsList.getScene().getWindow());
         if (file == null) return;
 
-        newAttachments.add(file);
-        attachmentsList.getItems().add(file.getName());
+        try {
+            long maxSize = 10 * 1024 * 1024;
+            if (file.length() > maxSize) {
+                showError("Файл завеликий (максимум 10 MB)");
+                return;
+            }
+
+            newAttachments.add(file);
+            attachmentsList.getItems().add(file.getName());
+
+        } catch (Exception e) {
+            showError("Не вдалося додати файл: " + e.getMessage());
+        }
     }
 
-    // ----------------------------------------------------------
-    //  ВИДАЛИТИ ВКЛАДЕННЯ
-    // ----------------------------------------------------------
     @FXML
     private void handleRemoveAttachment() {
-        int index = attachmentsList.getSelectionModel().getSelectedIndex();
-        if (index < 0) return;
+        int idx = attachmentsList.getSelectionModel().getSelectedIndex();
+        if (idx < 0) return;
 
-        attachmentsList.getItems().remove(index);
-        newAttachments.remove(index);
+        attachmentsList.getItems().remove(idx);
+        newAttachments.remove(idx);
     }
 
-    // ----------------------------------------------------------
-    //  ЗБЕРЕГТИ ЧЕРНЕТКУ
-    // ----------------------------------------------------------
     @FXML
     private void handleSaveDraft() {
-        String to = toField.getText();
-        String subject = subjectField.getText();
+
+        String to = toField.getText().trim();
+        String subject = subjectField.getText().trim();
         String body = bodyArea.getText();
 
+        clearErrors();
+
+        if (subject.isEmpty() && body.isEmpty()) {
+            showError("Чернетка не може бути порожньою");
+            return;
+        }
+
         try {
+            int accId = mailService.getAccount().getId();
+
             if (editingDraft == null) {
-                // Новая чернетка
-                int draftId = mailService.createDraft(
-                        folderId,
+                int draftId = facade.saveDraft(
+                        accId,
+                        draftsFolderId,
                         mailService.getAccount().getEmailAddress(),
                         to,
                         subject,
@@ -95,11 +104,12 @@ public class MessageFormController {
                         newAttachments
                 );
 
-                showInfo("Чернетку збережено. ID = " + draftId);
+                showInfo("Чернетку збережено.");
 
             } else {
-                // Оновити чернетку
-                mailService.updateDraft(editingDraft.getId(),
+                facade.updateDraft(
+                        accId,
+                        editingDraft.getId(),
                         subject,
                         body,
                         to,
@@ -115,20 +125,33 @@ public class MessageFormController {
         }
     }
 
-    // ----------------------------------------------------------
-    //  НАДІСЛАТИ
-    // ----------------------------------------------------------
     @FXML
     private void handleSend() {
-        String to = toField.getText();
-        String subject = subjectField.getText();
+
+        String to = toField.getText().trim();
+        String subject = subjectField.getText().trim();
         String body = bodyArea.getText();
 
+        clearErrors();
+
+        if (!ValidationUtils.isValidEmail(to)) {
+            ValidationUtils.showError(toField, errorLabel, "Введіть коректний Email отримувача");
+            return;
+        }
+
+        if (subject.isEmpty()) {
+            ValidationUtils.showError(subjectField, errorLabel, "Введіть тему листа");
+            return;
+        }
+
         try {
+            int accId = mailService.getAccount().getId();
+
             if (editingDraft == null) {
-                // Надсилаємо новий лист
-                int id = mailService.sendMessage(
-                        folderId,
+
+                int id = facade.sendMessage(
+                        accId,
+                        sentFolderId,
                         mailService.getAccount().getEmailAddress(),
                         to,
                         subject,
@@ -137,18 +160,18 @@ public class MessageFormController {
                         newAttachments
                 );
 
-                showInfo("Лист надіслано. ID = " + id);
+                showInfo("Лист надіслано");
 
             } else {
-                // Надсилаємо чернетку
-                mailService.sendDraft(
+
+                facade.sendDraft(
+                        accId,
                         editingDraft.getId(),
-                        folderId,
+                        sentFolderId,
                         newAttachments
                 );
 
                 showInfo("Чернетку надіслано.");
-
             }
 
         } catch (Exception e) {
@@ -156,14 +179,21 @@ public class MessageFormController {
         }
     }
 
-    // ----------------------------------------------------------
-    //  ALERTS
-    // ----------------------------------------------------------
     private void showError(String msg) {
-        new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK).show();
+        errorLabel.setText(msg);
+        errorLabel.getStyleClass().add("error-label");
+    }
+
+    private void clearErrors() {
+        errorLabel.setText("");
+        errorLabel.getStyleClass().remove("error-label");
+
+        ValidationUtils.clearError(toField, errorLabel);
+        ValidationUtils.clearError(subjectField, errorLabel);
     }
 
     private void showInfo(String msg) {
         new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK).show();
     }
 }
+

@@ -2,21 +2,23 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.geometry.*?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="emailclient.controller.RegisterController"
-      spacing="12" alignment="CENTER"
-      style="-fx-padding: 30; -fx-background-color: #f2f2f2;"
-      prefWidth="350">
+      spacing="14" alignment="CENTER"
+      style="-fx-padding: 35; -fx-background-color: #fafafa;"
+      prefWidth="360"
+      stylesheets="@../styles/error.css">
 
     <Label text="Реєстрація" style="-fx-font-size: 22; -fx-font-weight: bold;" />
 
-    <TextField fx:id="usernameField" promptText="Логін" prefWidth="250"/>
-    <PasswordField fx:id="passwordField" promptText="Пароль" prefWidth="250"/>
-    <PasswordField fx:id="repeatPasswordField" promptText="Повторіть пароль" prefWidth="250"/>
+    <TextField fx:id="usernameField" promptText="Логін" prefWidth="240"/>
+    <PasswordField fx:id="passwordField" promptText="Пароль" prefWidth="240"/>
+    <PasswordField fx:id="repeatPasswordField" promptText="Повторіть пароль" prefWidth="240"/>
 
-    <Button text="Створити акаунт" onAction="#handleRegister" prefWidth="250"/>
+    <Label fx:id="errorLabel" text="" style="-fx-text-fill: red;"/>
+
+    <Button text="Створити акаунт" onAction="#handleRegister" prefWidth="240"/>
     <Hyperlink text="Повернутися до входу" onAction="#handleBack"/>
 
 </VBox>

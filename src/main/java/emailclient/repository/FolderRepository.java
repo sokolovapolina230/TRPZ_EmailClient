@@ -10,9 +10,6 @@ import java.util.List;
 
 public class FolderRepository {
 
-    /**
-     * Додавання папки
-     */
     public void add(Folder folder) {
         String sql = "INSERT INTO folders (account_id, name, type) VALUES (?, ?, ?)";
 
@@ -24,16 +21,13 @@ public class FolderRepository {
             stmt.setString(3, folder.getType().name());
             stmt.executeUpdate();
 
-            System.out.println("📁 Додано папку: " + folder.getName());
+            System.out.println("Додано папку: " + folder.getName());
 
         } catch (SQLException e) {
             throw new RuntimeException("Помилка при додаванні папки", e);
         }
     }
 
-    /**
-     * Отримання папок акаунта
-     */
     public List<Folder> getByAccountId(int accountId) {
         List<Folder> list = new ArrayList<>();
         String sql = "SELECT * FROM folders WHERE account_id = ?";
@@ -60,9 +54,6 @@ public class FolderRepository {
         return list;
     }
 
-    /**
-     * Оновлення папки
-     */
     public void update(Folder folder) {
         String sql = "UPDATE folders SET name = ?, type = ? WHERE id = ?";
 
@@ -74,16 +65,13 @@ public class FolderRepository {
             stmt.setInt(3, folder.getId());
             stmt.executeUpdate();
 
-            System.out.println("✏️ Папку оновлено: " + folder.getName());
+            System.out.println("Папку оновлено: " + folder.getName());
 
         } catch (SQLException e) {
             throw new RuntimeException("Помилка при оновленні папки", e);
         }
     }
 
-    /**
-     * Видалення папки
-     */
     public void delete(int id) {
         String sql = "DELETE FROM folders WHERE id = ?";
 
@@ -92,16 +80,13 @@ public class FolderRepository {
 
             stmt.setInt(1, id);
             stmt.executeUpdate();
-            System.out.println("🗑️ Папку видалено (id=" + id + ")");
+            System.out.println("Папку видалено (id=" + id + ")");
 
         } catch (SQLException e) {
             throw new RuntimeException("Помилка при видаленні папки", e);
         }
     }
 
-    /**
-     * (Опціонально) Видалити всі папки акаунта
-     */
     public void deleteAllByAccount(int accountId) {
         String sql = "DELETE FROM folders WHERE account_id = ?";
 
@@ -115,4 +100,5 @@ public class FolderRepository {
             throw new RuntimeException("Помилка при масовому видаленні папок", e);
         }
     }
+
 }

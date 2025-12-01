@@ -2,22 +2,33 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.geometry.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="emailclient.controller.LoginController"
-      spacing="12" alignment="CENTER"
-      style="-fx-padding: 30; -fx-background-color: #f2f2f2;"
-      prefWidth="350">
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="emailclient.controller.LoginController"
+            prefWidth="380" prefHeight="280"
+            style="-fx-background-color: #fafafa;"
+            stylesheets="@../styles/error.css">
 
-    <Label text="Вхід у систему" style="-fx-font-size: 22; -fx-font-weight: bold;" />
+    <center>
+        <VBox alignment="CENTER" spacing="14" style="-fx-padding: 30;">
 
-    <TextField fx:id="usernameField" promptText="Логін" prefWidth="250"/>
-    <PasswordField fx:id="passwordField" promptText="Пароль" prefWidth="250"/>
+            <Label text="Вхід у систему"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
 
-    <Button text="Увійти" onAction="#handleLogin" prefWidth="250"/>
+            <TextField fx:id="usernameField" promptText="Ім'я користувача"
+                       prefWidth="240"/>
 
-    <Hyperlink text="Створити акаунт" onAction="#handleShowRegister"/>
+            <PasswordField fx:id="passwordField" promptText="Пароль"
+                           prefWidth="240"/>
 
-</VBox>
+            <Label fx:id="errorLabel" text="" style="-fx-text-fill: red;"/>
 
+            <HBox spacing="12" alignment="CENTER">
+                <Button text="Увійти" onAction="#handleLogin" prefWidth="100"/>
+                <Button text="Створити акаунт" onAction="#handleOpenCreate" prefWidth="130"/>
+            </HBox>
+
+        </VBox>
+    </center>
+
+</BorderPane>

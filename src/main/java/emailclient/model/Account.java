@@ -24,7 +24,7 @@ public class Account {
 
     public Account() {}
 
-    // Getters / Setters
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -60,4 +60,10 @@ public class Account {
 
     public int getSmtpPort() { return smtpPort; }
     public void setSmtpPort(int smtpPort) { this.smtpPort = smtpPort; }
+
+    @Override
+    public String toString() {
+        return emailAddress;
+    }
+
 }

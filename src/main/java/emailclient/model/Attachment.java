@@ -45,4 +45,10 @@ public class Attachment {
     public String getFileName() { return fileName; }
     public String getFilePath() { return filePath; }
     public long getSize() { return size; }
+
+    @Override
+    public String toString() {
+        return fileName;
+    }
+
 }

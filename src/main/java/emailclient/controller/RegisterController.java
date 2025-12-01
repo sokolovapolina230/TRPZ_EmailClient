@@ -1,7 +1,7 @@
 package emailclient.controller;
 
+import emailclient.facade.MailFacade;
 import emailclient.model.User;
-import emailclient.service.UserService;
 import emailclient.view.SceneManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -12,7 +12,7 @@ public class RegisterController {
     @FXML private PasswordField passwordField;
     @FXML private PasswordField repeatPasswordField;
 
-    private final UserService userService = new UserService();
+    private final MailFacade facade = MailFacade.getInstance();
 
     @FXML
     private void handleRegister() {
@@ -31,7 +31,7 @@ public class RegisterController {
             return;
         }
 
-        User created = userService.register(u, p1);
+        User created = facade.register(u, p1);
 
         if (created == null) {
             show("Користувач із таким логіном вже існує.");
@@ -39,7 +39,7 @@ public class RegisterController {
         }
 
         show("Акаунт створено! Тепер увійдіть.");
-        SceneManager.showLogin();
+        SceneManager.showCreateAccount(created);
     }
 
     @FXML

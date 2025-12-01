@@ -6,36 +6,52 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="emailclient.controller.MessageFormController"
-            prefWidth="600" prefHeight="500">
+            prefWidth="600" prefHeight="520"
+            style="-fx-background-color: #fafafa;"
+            stylesheets="@../styles/error.css">
 
     <top>
-        <VBox spacing="10" style="-fx-padding: 10;">
-            <TextField fx:id="toField" promptText="Кому"/>
-            <TextField fx:id="subjectField" promptText="Тема"/>
+        <VBox spacing="6" style="-fx-padding: 10;">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Кому:" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="toField" promptText="Введіть email отримувача"
+                           HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Тема:" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="subjectField" promptText="Введіть тему листа"
+                           HBox.hgrow="ALWAYS"/>
+            </HBox>
         </VBox>
     </top>
 
     <center>
-        <TextArea fx:id="bodyArea" wrapText="true" style="-fx-padding: 10;"/>
+        <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS" style="-fx-padding: 10;">
+            <TextArea fx:id="bodyArea"
+                      wrapText="true"
+                      style="-fx-padding: 10;"/>
+        </ScrollPane>
     </center>
 
-    <right>
+    <bottom>
         <VBox spacing="10" style="-fx-padding: 10;">
-            <Label text="Вкладення:"/>
-            <ListView fx:id="attachmentsList" prefWidth="200" prefHeight="200"/>
+
+            <Label text="Вкладення:" style="-fx-font-weight: bold;" />
+
+            <ListView fx:id="attachmentsList" prefHeight="120"/>
 
             <HBox spacing="10">
                 <Button text="+" onAction="#handleAddAttachment"/>
                 <Button text="-" onAction="#handleRemoveAttachment"/>
+                <Label fx:id="errorLabel" text="" style="-fx-text-fill:red;" />
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Зберегти як чернетку" onAction="#handleSaveDraft"/>
+                <Button text="Надіслати" onAction="#handleSend"/>
             </HBox>
         </VBox>
-    </right>
-
-    <bottom>
-        <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 10;">
-            <Button text="Зберегти чернетку" onAction="#handleSaveDraft"/>
-            <Button text="Надіслати" onAction="#handleSend"/>
-        </HBox>
     </bottom>
 
 </BorderPane>

@@ -2,7 +2,6 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.text.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -19,7 +18,7 @@
     </top>
 
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-padding: 10;">
+        <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS" style="-fx-padding: 10;">
             <TextArea fx:id="bodyArea" editable="false" wrapText="true" />
         </ScrollPane>
     </center>
@@ -27,11 +26,12 @@
     <bottom>
         <VBox spacing="6" style="-fx-padding: 10;">
             <Label text="Вкладення:" style="-fx-font-weight: bold;" />
-            <ListView fx:id="attachmentsList" prefHeight="120"/>
+            <ListView fx:id="attachmentsList" prefHeight="160"/>
             <HBox spacing="10">
-                <Button text="Завантажити" onAction="#handleDownloadAttachment"/>
-                <Button text="Видалити" onAction="#handleDeleteMessage"/>
-                <Button text="Перемістити" onAction="#handleMove"/>
+                <Button fx:id="btnEdit" text="Редагувати" onAction="#handleEdit"/>
+                <Button fx:id="btnCopy" text="Копіювати" onAction="#handleCopy"/>
+                <Button fx:id="btnMove" text="Перемістити" onAction="#handleMove"/>
+                <Button fx:id="btnDelete" text="Видалити" onAction="#handleDeleteMessage"/>
             </HBox>
         </VBox>
     </bottom>
