@@ -7,22 +7,36 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="emailclient.controller.MessageFormController"
             prefWidth="600" prefHeight="520"
-            style="-fx-background-color: #fafafa;"
-            stylesheets="@../styles/error.css">
+            style="-fx-background-color: #fafafa;">
 
     <top>
-        <VBox spacing="6" style="-fx-padding: 10;">
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="Кому:" style="-fx-font-weight: bold;"/>
-                <TextField fx:id="toField" promptText="Введіть email отримувача"
-                           HBox.hgrow="ALWAYS"/>
+        <VBox style="-fx-padding: 10;" spacing="10">
+
+            <HBox alignment="TOP_RIGHT">
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button
+                        text="✖"
+                        onAction="#handleClose"
+                        style="-fx-background-color: transparent;
+                           -fx-font-size: 18;
+                           -fx-text-fill: #888;
+                           -fx-padding: 4 8 4 8;"/>
             </HBox>
 
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="Тема:" style="-fx-font-weight: bold;"/>
-                <TextField fx:id="subjectField" promptText="Введіть тему листа"
-                           HBox.hgrow="ALWAYS"/>
-            </HBox>
+            <VBox spacing="8">
+
+                <HBox spacing="10">
+                    <Label text="Кому:" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="toField" HBox.hgrow="ALWAYS"/>
+                </HBox>
+
+                <HBox spacing="10">
+                    <Label text="Тема:" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="subjectField" HBox.hgrow="ALWAYS"/>
+                </HBox>
+
+            </VBox>
+
         </VBox>
     </top>
 
@@ -39,12 +53,12 @@
 
             <Label text="Вкладення:" style="-fx-font-weight: bold;" />
 
-            <ListView fx:id="attachmentsList" prefHeight="120"/>
+            <ListView fx:id="attachmentsList" prefHeight="80"/>
 
             <HBox spacing="10">
                 <Button text="+" onAction="#handleAddAttachment"/>
                 <Button text="-" onAction="#handleRemoveAttachment"/>
-                <Label fx:id="errorLabel" text="" style="-fx-text-fill:red;" />
+                <Label fx:id="errorLabel" style="-fx-text-fill:red;" />
             </HBox>
 
             <HBox spacing="10" alignment="CENTER_RIGHT">

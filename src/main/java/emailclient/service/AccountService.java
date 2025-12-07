@@ -41,7 +41,4 @@ public class AccountService {
         return repo.getById(id);
     }
 
-    public void delete(int id) {
-        repo.delete(id);
-    }
 }

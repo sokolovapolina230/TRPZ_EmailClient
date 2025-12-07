@@ -21,7 +21,7 @@
             <PasswordField fx:id="passwordField" promptText="Пароль"
                            prefWidth="240"/>
 
-            <Label fx:id="errorLabel" text="" style="-fx-text-fill: red;"/>
+            <Label fx:id="errorLabel" style="-fx-text-fill: red;"/>
 
             <HBox spacing="12" alignment="CENTER">
                 <Button text="Увійти" onAction="#handleLogin" prefWidth="100"/>

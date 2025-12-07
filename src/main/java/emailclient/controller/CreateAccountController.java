@@ -32,13 +32,15 @@ public class CreateAccountController {
         ValidationUtils.clearError(emailField, errorLabel);
         ValidationUtils.clearError(passwordField, errorLabel);
 
+        // Перевірка правильності формату
         if (!ValidationUtils.isValidEmail(email)) {
             ValidationUtils.showError(emailField, errorLabel, "Некоректний email");
             return;
         }
 
+        // Пароль
         if (pass.length() < 6) {
-            ValidationUtils.showError(passwordField, errorLabel, "Пароль має містити не менше 6 символів");
+            ValidationUtils.showError(passwordField, errorLabel, "Пароль не правильний");
             return;
         }
 
@@ -47,15 +49,25 @@ public class CreateAccountController {
             boolean ok = facade.createAccount(acc);
 
             if (!ok) {
-                ValidationUtils.showError(emailField, errorLabel, "Помилка створення акаунта");
+                ValidationUtils.showError(emailField, errorLabel, "Помилка створення акаунту");
                 return;
             }
 
             SceneManager.showMailbox(user);
 
         } catch (Exception e) {
+
+            String msg = e.getMessage().toLowerCase();
+
+            // Провайдер
+            if (msg.contains("provider") || msg.contains("unsupported")) {
+                ValidationUtils.showError(emailField, errorLabel,
+                        "Провайдер не підтримується");
+                return;
+            }
+
             ValidationUtils.showError(emailField, errorLabel,
-                    "Помилка створення акаунту: " + e.getMessage());
+                    "Помилка створення. " + e.getMessage());
         }
     }
 

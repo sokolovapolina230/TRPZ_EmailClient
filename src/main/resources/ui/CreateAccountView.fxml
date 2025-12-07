@@ -30,7 +30,7 @@
                        prefWidth="260"/>
     </GridPane>
 
-    <Label fx:id="errorLabel" text="" style="-fx-text-fill: red;"/>
+    <Label fx:id="errorLabel" style="-fx-text-fill: red;"/>
 
     <HBox spacing="20" alignment="CENTER">
         <Button text="Створити" onAction="#handleCreate" prefWidth="120"/>

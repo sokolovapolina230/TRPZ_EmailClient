@@ -1,8 +1,8 @@
 package emailclient.facade;
 
 import emailclient.model.*;
-import emailclient.model.enums.FolderType;
 import emailclient.model.enums.Importance;
+import emailclient.repository.MessageRepository;
 import emailclient.service.*;
 
 import java.io.File;
@@ -17,6 +17,8 @@ public class MailFacade {
     private final FolderService folderService = new FolderService();
     private final MessageService messageService = new MessageService();
     private final AttachmentService attachmentService = new AttachmentService();
+    private final MessageRepository messageRepository = new MessageRepository();
+
 
     private MailFacade() { }
 
@@ -72,12 +74,16 @@ public class MailFacade {
         messageService.updateReadStatus(id, read);
     }
 
+    public void updateImportance(int messageId, Importance imp) {
+        messageRepository.updateImportance(messageId, imp);
+    }
+
     public void deleteMessage(int id) {
         messageService.delete(id);
     }
 
-    public int copyMessage(int id, int targetFolderId) {
-        return messageService.copyMessage(id, targetFolderId);
+    public void copyMessage(int id, int targetFolderId) {
+        messageService.copyMessage(id, targetFolderId);
     }
 
     public void moveDraft(int id, int newFolderId) {
@@ -90,37 +96,37 @@ public class MailFacade {
     }
 
     // ---------- MAIL / SMTP / SYNC ----------
-    public List<Message> syncInbox(int accountId, int inboxFolderId) {
+    public void syncInbox(int accountId, int inboxFolderId) {
         MailService mail = new MailService(accountId);
-        return mail.syncInbox(inboxFolderId);
+        mail.syncInbox(inboxFolderId);
     }
 
-    public int sendMessage(int accountId,
-                           int sentFolderId,
-                           String sender,
-                           String recipient,
-                           String subject,
-                           String body,
-                           Importance importance,
-                           List<File> attachments) {
+    public void sendMessage(int accountId,
+                            int sentFolderId,
+                            String sender,
+                            String recipient,
+                            String subject,
+                            String body,
+                            Importance importance,
+                            List<File> attachments) {
 
         MailService mail = new MailService(accountId);
-        return mail.sendMessage(
+        mail.sendMessage(
                 sentFolderId, sender, recipient, subject, body, importance, attachments
         );
     }
 
-    public int saveDraft(int accountId,
-                         int draftFolderId,
-                         String sender,
-                         String recipient,
-                         String subject,
-                         String body,
-                         Importance importance,
-                         List<File> attachments) {
+    public void saveDraft(int accountId,
+                          int draftFolderId,
+                          String sender,
+                          String recipient,
+                          String subject,
+                          String body,
+                          Importance importance,
+                          List<File> attachments) {
 
         MailService mail = new MailService(accountId);
-        return mail.createDraft(
+        mail.createDraft(
                 draftFolderId,
                 sender,
                 recipient,

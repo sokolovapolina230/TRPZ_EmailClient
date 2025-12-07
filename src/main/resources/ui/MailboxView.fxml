@@ -8,16 +8,26 @@
             fx:controller="emailclient.controller.MailboxController">
 
     <left>
-        <VBox spacing="10" prefWidth="230"
+        <VBox spacing="10"
+              minWidth="200"
+              prefWidth="230"
+              maxWidth="260"
               style="-fx-background-color: #f3f3f3; -fx-padding: 12;">
 
             <Label text="Акаунти" style="-fx-font-size: 14; -fx-font-weight: bold;" />
-            <ListView fx:id="accountsList" prefHeight="150"/>
+
+            <ListView fx:id="accountsList"
+                      minHeight="50"
+                      prefHeight="150"
+                      VBox.vgrow="NEVER"/>
 
             <Separator/>
 
             <Label text="Папки" style="-fx-font-size: 14; -fx-font-weight: bold;" />
-            <ListView fx:id="foldersList" VBox.vgrow="ALWAYS"/>
+
+            <ListView fx:id="foldersList"
+                      minHeight="200"
+                      VBox.vgrow="ALWAYS"/>
 
             <HBox spacing="10">
                 <Button text="Створити" onAction="#handleCreateFolder"/>
@@ -28,31 +38,44 @@
     </left>
 
     <center>
-        <VBox spacing="10" style="-fx-padding: 10;">
-            <ToolBar>
-                <Button text="Написати" onAction="#handleNewMessage"/>
-                <Button text="Оновити" onAction="#handleRefresh"/>
-                <Button text="Отримати пошту" onAction="#handleSyncInbox"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button text="Вийти" onAction="#handleLogout"/>
-            </ToolBar>
+        <HBox HBox.hgrow="ALWAYS">
 
-            <TableView fx:id="messagesTable" VBox.vgrow="ALWAYS">
-                <columns>
-                    <TableColumn fx:id="colFrom" text="Від" prefWidth="160"/>
-                    <TableColumn fx:id="colSubject" text="Тема" prefWidth="260"/>
-                    <TableColumn fx:id="colDate" text="Дата" prefWidth="140"/>
-                    <TableColumn fx:id="colImportance" text="!" prefWidth="50"/>
-                </columns>
-            </TableView>
-        </VBox>
+            <VBox spacing="10"
+                  minWidth="350"
+                  prefWidth="600"
+                  HBox.hgrow="ALWAYS"
+                  VBox.vgrow="ALWAYS"
+                  style="-fx-padding: 10;">
+
+                <ToolBar>
+                    <Button text="Написати" onAction="#handleNewMessage"/>
+                    <Button text="Оновити" onAction="#handleRefresh"/>
+                    <Button text="Отримати пошту" onAction="#handleSyncInbox"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Вийти" onAction="#handleLogout"/>
+                </ToolBar>
+
+                <TableView fx:id="messagesTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colFrom" text="Від"/>
+                        <TableColumn fx:id="colSubject" text="Тема"/>
+                        <TableColumn fx:id="colDate" text="Дата"/>
+                        <TableColumn fx:id="colImportance" text="!"/>
+                    </columns>
+                </TableView>
+
+            </VBox>
+
+            <VBox fx:id="messageViewContainer"
+                  minWidth="0"
+                  prefWidth="0"
+                  maxWidth="650"
+                  HBox.hgrow="NEVER"
+                  VBox.vgrow="ALWAYS"
+                  style="-fx-background-color: #fafafa;
+                         -fx-padding: 0;" />
+        </HBox>
     </center>
 
-    <right>
-        <VBox fx:id="messageViewContainer"
-              prefWidth="420"
-              VBox.vgrow="ALWAYS"
-              style="-fx-background-color: #fafafa; -fx-padding: 10;"/>
-    </right>
-
 </BorderPane>
+

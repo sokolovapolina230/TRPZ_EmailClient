@@ -73,7 +73,7 @@ public class MessageService {
         repo.updateFolder(messageId, newFolderId);
     }
 
-    public int copyMessage(int sourceId, int targetFolderId) {
+    public void copyMessage(int sourceId, int targetFolderId) {
 
         // Отримуємо оригінал
         Message original = repo.getById(sourceId);
@@ -93,7 +93,6 @@ public class MessageService {
             attachmentService.copyAttachment(a, newMessageId);
         }
 
-        return newMessageId;
     }
 
 

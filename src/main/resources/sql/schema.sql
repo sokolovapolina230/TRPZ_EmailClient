@@ -1,12 +1,3 @@
--- Скидання старих таблиць
-DROP TABLE IF EXISTS attachments;
-DROP TABLE IF EXISTS messages;
-DROP TABLE IF EXISTS folders;
-DROP TABLE IF EXISTS accounts;
-DROP TABLE IF EXISTS users;
-
--- Створення таблиць для Email Client
-
 -- 1. Користувачі (локальні)
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

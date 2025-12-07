@@ -30,10 +30,14 @@ public class Attachment {
         public Builder size(long size) { this.size = size; return this; }
 
         public Attachment build() {
-            if (messageId <= 0) throw new IllegalStateException("messageId не може бути <= 0");
-            if (fileName == null || fileName.isBlank()) throw new IllegalStateException("fileName порожній");
-            if (filePath == null || filePath.isBlank()) throw new IllegalStateException("filePath порожній");
-            if (size < 0) throw new IllegalStateException("size < 0");
+            if (messageId <= 0)
+                throw new IllegalStateException("messageId не може бути <= 0");
+            if (fileName == null || fileName.isBlank())
+                throw new IllegalStateException("fileName порожній");
+            if (filePath == null || filePath.isBlank())
+                throw new IllegalStateException("filePath порожній");
+            if (size < 0)
+                throw new IllegalStateException("size < 0");
 
             return new Attachment(this);
         }

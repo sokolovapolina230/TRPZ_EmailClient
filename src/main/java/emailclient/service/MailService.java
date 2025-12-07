@@ -12,7 +12,6 @@ import java.util.List;
 
 public class MailService {
 
-    private final AccountRepository accountRepo = new AccountRepository();
     private final MessageService messageService = new MessageService();
     private final AttachmentService attachmentService = new AttachmentService();
     private final SmtpStrategy smtpStrategy = new SmtpStrategy();
@@ -22,6 +21,7 @@ public class MailService {
 
     public MailService(int accountId) {
 
+        AccountRepository accountRepo = new AccountRepository();
         Account a = accountRepo.getById(accountId);
         if (a == null)
             throw new IllegalArgumentException("Акаунт не знайдено: id=" + accountId);
@@ -38,27 +38,26 @@ public class MailService {
         return account;
     }
 
-    public List<Message> syncInbox(int inboxFolderId) {
+    public void syncInbox(int inboxFolderId) {
         try {
             protocolStrategy.connect(account);
 
             List<Message> msgs = protocolStrategy.fetchMessages(account.getId(), inboxFolderId);
 
             protocolStrategy.disconnect();
-            return msgs;
 
         } catch (Exception e) {
             throw new RuntimeException("Помилка синхронізації пошти: " + e.getMessage(), e);
         }
     }
 
-    public int createDraft(int draftFolderId,
-                           String sender,
-                           String recipient,
-                           String subject,
-                           String body,
-                           Importance importance,
-                           List<File> attachments) {
+    public void createDraft(int draftFolderId,
+                            String sender,
+                            String recipient,
+                            String subject,
+                            String body,
+                            Importance importance,
+                            List<File> attachments) {
 
         int draftId = messageService.createDraft(
                 draftFolderId,
@@ -74,7 +73,6 @@ public class MailService {
                 attachmentService.addAttachment(draftId, f);
         }
 
-        return draftId;
     }
 
     public void updateDraft(int messageId,
@@ -92,13 +90,13 @@ public class MailService {
         }
     }
 
-    public int sendMessage(int sentFolderId,
-                           String sender,
-                           String recipient,
-                           String subject,
-                           String body,
-                           Importance importance,
-                           List<File> attachments) {
+    public void sendMessage(int sentFolderId,
+                            String sender,
+                            String recipient,
+                            String subject,
+                            String body,
+                            Importance importance,
+                            List<File> attachments) {
 
         // створюємо лист у SENT
         int messageId = messageService.createIncoming(
@@ -126,7 +124,6 @@ public class MailService {
             throw new RuntimeException("SMTP помилка: " + e.getMessage(), e);
         }
 
-        return messageId;
     }
 
     public void sendDraft(int messageId, int sentFolderId, List<File> attachments) {
@@ -149,12 +146,4 @@ public class MailService {
         messageService.markDraftAsSent(messageId, sentFolderId);
     }
 
-    public void deleteDraft(int messageId) {
-        attachmentService.deleteAllByMessageId(messageId);
-        messageService.delete(messageId);
-    }
-
-    public List<emailclient.model.Attachment> getAttachments(int messageId) {
-        return attachmentService.getAttachments(messageId);
-    }
 }

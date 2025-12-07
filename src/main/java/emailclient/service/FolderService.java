@@ -63,25 +63,6 @@ public class FolderService {
         }
     }
 
-    public void renameFolder(Folder folder, String newName) {
-
-        if (folder.getType().isSystem()) {
-            throw new RuntimeException("Системні папки не можна перейменовувати!");
-        }
-
-        if (newName == null || newName.isBlank()) {
-            throw new IllegalArgumentException("Нова назва не може бути порожньою");
-        }
-
-        folder.setName(newName.trim());
-
-        try {
-            folderRepository.update(folder);
-        } catch (Exception e) {
-            throw new RuntimeException("Не вдалося перейменувати папку", e);
-        }
-    }
-
     private Folder buildFolder(int accountId, String name, FolderType type) {
         Folder folder = new Folder();
         folder.setAccountId(accountId);

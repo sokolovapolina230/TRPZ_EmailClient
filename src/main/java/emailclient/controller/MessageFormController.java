@@ -5,6 +5,7 @@ import emailclient.model.Message;
 import emailclient.model.enums.Importance;
 import emailclient.service.MailService;
 import emailclient.util.ValidationUtils;
+import emailclient.view.SceneManager;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -39,6 +40,7 @@ public class MessageFormController {
 
     public void loadDraft(Message draft) {
         this.editingDraft = draft;
+
         toField.setText(draft.getRecipient());
         subjectField.setText(draft.getSubject());
         bodyArea.setText(draft.getBody());
@@ -51,19 +53,13 @@ public class MessageFormController {
         File file = chooser.showOpenDialog(attachmentsList.getScene().getWindow());
         if (file == null) return;
 
-        try {
-            long maxSize = 10 * 1024 * 1024;
-            if (file.length() > maxSize) {
-                showError("Файл завеликий (максимум 10 MB)");
-                return;
-            }
-
-            newAttachments.add(file);
-            attachmentsList.getItems().add(file.getName());
-
-        } catch (Exception e) {
-            showError("Не вдалося додати файл: " + e.getMessage());
+        if (file.length() > 10 * 1024 * 1024) {
+            showError("Файл завеликий (максимум 10 MB)");
+            return;
         }
+
+        newAttachments.add(file);
+        attachmentsList.getItems().add(file.getName());
     }
 
     @FXML
@@ -93,7 +89,8 @@ public class MessageFormController {
             int accId = mailService.getAccount().getId();
 
             if (editingDraft == null) {
-                int draftId = facade.saveDraft(
+
+                facade.saveDraft(
                         accId,
                         draftsFolderId,
                         mailService.getAccount().getEmailAddress(),
@@ -107,6 +104,7 @@ public class MessageFormController {
                 showInfo("Чернетку збережено.");
 
             } else {
+
                 facade.updateDraft(
                         accId,
                         editingDraft.getId(),
@@ -145,11 +143,12 @@ public class MessageFormController {
         }
 
         try {
+
             int accId = mailService.getAccount().getId();
 
             if (editingDraft == null) {
 
-                int id = facade.sendMessage(
+                facade.sendMessage(
                         accId,
                         sentFolderId,
                         mailService.getAccount().getEmailAddress(),
@@ -160,7 +159,7 @@ public class MessageFormController {
                         newAttachments
                 );
 
-                showInfo("Лист надіслано");
+                showInfo("Лист надіслано.");
 
             } else {
 
@@ -174,26 +173,32 @@ public class MessageFormController {
                 showInfo("Чернетку надіслано.");
             }
 
+            // після успіху → закрити панель
+            SceneManager.getMailboxController().clearRightPanel();
+
         } catch (Exception e) {
             showError("Помилка надсилання: " + e.getMessage());
         }
     }
 
+    @FXML
+    private void handleClose() {
+        SceneManager.getMailboxController().clearRightPanel();
+    }
+
+    // =====================================================
+
     private void showError(String msg) {
         errorLabel.setText(msg);
-        errorLabel.getStyleClass().add("error-label");
     }
 
     private void clearErrors() {
         errorLabel.setText("");
-        errorLabel.getStyleClass().remove("error-label");
-
         ValidationUtils.clearError(toField, errorLabel);
         ValidationUtils.clearError(subjectField, errorLabel);
     }
 
     private void showInfo(String msg) {
-        new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK).show();
+        new Alert(Alert.AlertType.INFORMATION, msg).show();
     }
 }
-

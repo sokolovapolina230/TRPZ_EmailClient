@@ -189,6 +189,18 @@ public class MessageRepository {
         }
     }
 
+    public void updateImportance(int id, Importance importance) {
+        String sql = "UPDATE messages SET importance = ? WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setString(1, importance.name());
+            st.setInt(2, id);
+            st.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("updateImportance помилка", e);
+        }
+    }
+
     public void delete(int id) {
         String sql = "DELETE FROM messages WHERE id = ?";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();

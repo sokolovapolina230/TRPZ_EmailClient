@@ -1,37 +1,49 @@
 package emailclient.database;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-/**
- * Singleton, що керує підключенням до SQLite.
- * Але не зберігає одне постійне з’єднання — лише параметри.
- */
 public class DatabaseConnection {
 
-    private static final String URL = "jdbc:sqlite:emailclient.db";
+    private static final String DB_DIR;
+    private static final String DB_PATH;
+    private static final String URL;
 
-    private DatabaseConnection() { }
+    static {
+        String appData = System.getenv("APPDATA");
 
-    private static class Holder {
-        private static final DatabaseConnection INSTANCE = new DatabaseConnection();
+        DB_DIR = (appData != null && !appData.isBlank())
+                ? appData + File.separator + "EmailClient"
+                : System.getProperty("user.home") + File.separator + ".emailclient";
+        DB_PATH = DB_DIR + File.separator + "emailclient.db";
+
+        File dir = new File(DB_DIR);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        URL = "jdbc:sqlite:" + DB_PATH;
+
     }
 
     public static DatabaseConnection getInstance() {
         return Holder.INSTANCE;
     }
 
-    /**
-     * Повертає НОВЕ з’єднання при кожному виклику.
-     * Це правильно для SQLite.
-     */
+    private static class Holder {
+        private static final DatabaseConnection INSTANCE = new DatabaseConnection();
+    }
+
+    private DatabaseConnection() { }
+
+    // Повертає нове з’єднання при кожному виклику.
     public Connection getConnection() {
         try {
             Connection conn = DriverManager.getConnection(URL);
 
-            // Увімкнення foreign keys
             try (Statement stmt = conn.createStatement()) {
                 stmt.execute("PRAGMA foreign_keys = ON");
             }

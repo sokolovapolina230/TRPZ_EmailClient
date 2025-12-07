@@ -54,24 +54,6 @@ public class FolderRepository {
         return list;
     }
 
-    public void update(Folder folder) {
-        String sql = "UPDATE folders SET name = ?, type = ? WHERE id = ?";
-
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, folder.getName());
-            stmt.setString(2, folder.getType().name());
-            stmt.setInt(3, folder.getId());
-            stmt.executeUpdate();
-
-            System.out.println("Папку оновлено: " + folder.getName());
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Помилка при оновленні папки", e);
-        }
-    }
-
     public void delete(int id) {
         String sql = "DELETE FROM folders WHERE id = ?";
 
@@ -84,20 +66,6 @@ public class FolderRepository {
 
         } catch (SQLException e) {
             throw new RuntimeException("Помилка при видаленні папки", e);
-        }
-    }
-
-    public void deleteAllByAccount(int accountId) {
-        String sql = "DELETE FROM folders WHERE account_id = ?";
-
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, accountId);
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Помилка при масовому видаленні папок", e);
         }
     }
 

@@ -4,6 +4,8 @@ import emailclient.facade.MailFacade;
 import emailclient.model.*;
 import emailclient.model.enums.FolderType;
 import emailclient.service.FolderService;
+import emailclient.view.SceneManager;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
@@ -25,6 +27,7 @@ public class MessageViewController {
     @FXML private Button btnCopy;
     @FXML private Button btnMove;
     @FXML private Button btnDelete;
+    @FXML private Button btnClose;
 
     private Message message;
     private Folder folder;
@@ -33,6 +36,7 @@ public class MessageViewController {
 
     private final MailFacade facade = MailFacade.getInstance();
     private final FolderService folderService = new FolderService();
+
 
     public void setMessage(Message msg, Folder folder, Account acc, Runnable refreshCallback) {
         this.message = msg;
@@ -54,26 +58,25 @@ public class MessageViewController {
             @Override
             protected void updateItem(Attachment item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item.getFileName() + " (" + item.getSize() / 1024 + " KB)");
-                }
+                setText((empty || item == null) ? null :
+                        item.getFileName() + " (" + item.getSize() / 1024 + " KB)");
             }
         });
 
         updateButtons();
-
     }
 
     private void updateButtons() {
+
         boolean isDraft = folder.getType() == FolderType.DRAFTS;
+        boolean isTrash = folder.getType() == FolderType.TRASH;
 
         btnEdit.setVisible(isDraft);
         btnMove.setVisible(isDraft);
 
-        btnCopy.setVisible(!isDraft);
-        btnDelete.setVisible(true);
+        btnCopy.setVisible(!isDraft && !isTrash);
+        btnDelete.setVisible(!isTrash);
+
     }
 
     @FXML
@@ -89,13 +92,12 @@ public class MessageViewController {
             Folder sent = folderService.getFoldersByAccount(account.getId())
                     .stream()
                     .filter(f -> f.getType() == FolderType.SENT)
-                    .findFirst()
-                    .orElseThrow();
+                    .findFirst().orElseThrow();
 
             form.init(new emailclient.service.MailService(account.getId()), folder.getId(), sent.getId());
             form.loadDraft(message);
 
-            refreshCallback.run();
+            SceneManager.getMailboxController().setRightPanel(pane);
 
         } catch (Exception e) {
             new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
@@ -104,7 +106,11 @@ public class MessageViewController {
 
     @FXML
     private void handleCopy() {
+
+        if (folder.getType() == FolderType.TRASH) return;
+
         List<Folder> folders = folderService.getFoldersByAccount(account.getId());
+        folders.removeIf(f -> f.getType() == FolderType.TRASH);
 
         ChoiceDialog<Folder> dialog = new ChoiceDialog<>(null, folders);
         dialog.setTitle("Копіювати лист");
@@ -121,6 +127,7 @@ public class MessageViewController {
         if (folder.getType() != FolderType.DRAFTS) return;
 
         List<Folder> folders = folderService.getFoldersByAccount(account.getId());
+        folders.removeIf(f -> f.getType() == FolderType.TRASH);
 
         ChoiceDialog<Folder> dialog = new ChoiceDialog<>(null, folders);
         dialog.setTitle("Перемістити чернетку");
@@ -128,12 +135,19 @@ public class MessageViewController {
         dialog.showAndWait().ifPresent(target -> {
             facade.moveDraft(message.getId(), target.getId());
             refreshCallback.run();
+            SceneManager.getMailboxController().clearRightPanel();
         });
+    }
+
+    @FXML
+    private void handleClose() {
+        SceneManager.getMailboxController().clearRightPanel();
     }
 
     @FXML
     private void handleDeleteMessage() {
         facade.deleteMessage(message.getId());
         refreshCallback.run();
+        SceneManager.getMailboxController().clearRightPanel();
     }
 }

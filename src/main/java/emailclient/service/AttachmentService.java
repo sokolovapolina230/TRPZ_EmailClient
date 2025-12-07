@@ -11,17 +11,22 @@ import java.util.UUID;
 
 public class AttachmentService {
 
-    private static final String ATTACHMENTS_DIR = "attachments";
+    private static final String ATTACH_DIR;
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
-
     private final AttachmentRepository repo = new AttachmentRepository();
 
-    public AttachmentService() {
-        File dir = new File(ATTACHMENTS_DIR);
-        if (!dir.exists()) dir.mkdirs();
-    }
+    static {
+        String appData = System.getenv("APPDATA");
 
-    public int addAttachment(int messageId, File sourceFile) {
+        ATTACH_DIR = (appData != null && !appData.isBlank())
+                ? appData + File.separator + "EmailClient" + File.separator + "attachments"
+                : System.getProperty("user.home") + File.separator + ".emailclient" + File.separator + "attachments";
+
+        new File(ATTACH_DIR).mkdirs();
+    }
+    public AttachmentService() {}
+
+    public void addAttachment(int messageId, File sourceFile) {
 
         if (sourceFile == null || !sourceFile.exists())
             throw new IllegalArgumentException("Файл не існує");
@@ -37,7 +42,7 @@ public class AttachmentService {
             throw new IllegalArgumentException("Недопустиме ім'я файла");
 
         String storedName = UUID.randomUUID() + "_" + safeName;
-        Path targetPath = Path.of(ATTACHMENTS_DIR, storedName);
+        Path targetPath = Path.of(ATTACH_DIR, storedName);
 
         Attachment a = new Attachment.Builder()
                 .messageId(messageId)
@@ -56,7 +61,6 @@ public class AttachmentService {
             throw new RuntimeException("Помилка копіювання файла", e);
         }
 
-        return id;
     }
 
     public void copyAttachment(Attachment original, int newMessageId) {
@@ -66,7 +70,7 @@ public class AttachmentService {
 
             String safeName = Path.of(original.getFileName()).getFileName().toString();
             String storedName = UUID.randomUUID() + "_" + safeName;
-            Path newPath = Path.of(ATTACHMENTS_DIR, storedName);
+            Path newPath = Path.of(ATTACH_DIR, storedName);
 
             Files.copy(src.toPath(), newPath, StandardCopyOption.REPLACE_EXISTING);
 

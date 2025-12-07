@@ -7,7 +7,7 @@
       fx:controller="emailclient.controller.RegisterController"
       spacing="14" alignment="CENTER"
       style="-fx-padding: 35; -fx-background-color: #fafafa;"
-      prefWidth="360"
+      prefWidth="380"
       stylesheets="@../styles/error.css">
 
     <Label text="Реєстрація" style="-fx-font-size: 22; -fx-font-weight: bold;" />
@@ -16,7 +16,7 @@
     <PasswordField fx:id="passwordField" promptText="Пароль" prefWidth="240"/>
     <PasswordField fx:id="repeatPasswordField" promptText="Повторіть пароль" prefWidth="240"/>
 
-    <Label fx:id="errorLabel" text="" style="-fx-text-fill: red;"/>
+    <Label fx:id="errorLabel" style="-fx-text-fill: red;"/>
 
     <Button text="Створити акаунт" onAction="#handleRegister" prefWidth="240"/>
     <Hyperlink text="Повернутися до входу" onAction="#handleBack"/>
