@@ -84,6 +84,8 @@ public class MailService {
 
         messageService.updateDraft(messageId, subject, body, recipient, importance);
 
+        attachmentService.deleteAllByMessageId(messageId);
+
         if (attachments != null) {
             for (File f : attachments)
                 attachmentService.addAttachment(messageId, f);

@@ -95,7 +95,6 @@ public class MessageService {
 
     }
 
-
     public void updateReadStatus(int id, boolean read) {
         repo.setRead(id, read);
     }

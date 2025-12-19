@@ -12,6 +12,7 @@ public class MailFacade {
 
     private static final MailFacade INSTANCE = new MailFacade();
 
+    // Services
     private final UserService userService = new UserService();
     private final AccountService accountService = new AccountService();
     private final FolderService folderService = new FolderService();
@@ -19,14 +20,14 @@ public class MailFacade {
     private final AttachmentService attachmentService = new AttachmentService();
     private final MessageRepository messageRepository = new MessageRepository();
 
-
-    private MailFacade() { }
+    private MailFacade() {}
 
     public static MailFacade getInstance() {
         return INSTANCE;
     }
 
-    // ---------- USER ----------
+    // USER
+
     public User login(String username, String password) {
         return userService.login(username, password);
     }
@@ -35,7 +36,8 @@ public class MailFacade {
         return userService.register(u, p);
     }
 
-    // ---------- ACCOUNT ----------
+    // ACCOUNT
+
     public boolean createAccount(Account account) {
         return accountService.createAccount(account);
     }
@@ -48,7 +50,8 @@ public class MailFacade {
         return accountService.getById(id);
     }
 
-    // ---------- FOLDERS ----------
+    // FOLDERS
+
     public List<Folder> getFolders(int accountId) {
         return folderService.getFoldersByAccount(accountId);
     }
@@ -61,7 +64,8 @@ public class MailFacade {
         folderService.deleteFolder(f);
     }
 
-    // ---------- MESSAGES ----------
+    // MESSAGES
+
     public List<Message> getMessages(int folderId) {
         return messageService.getMessages(folderId);
     }
@@ -79,7 +83,12 @@ public class MailFacade {
     }
 
     public void deleteMessage(int id) {
+        attachmentService.deleteAllByMessageId(id);
         messageService.delete(id);
+    }
+
+    public void moveToTrash(int messageId, int trashFolderId) {
+        messageService.updateFolder(messageId, trashFolderId);
     }
 
     public void copyMessage(int id, int targetFolderId) {
@@ -90,12 +99,23 @@ public class MailFacade {
         messageService.updateFolder(id, newFolderId);
     }
 
-    // ---------- ATTACHMENTS ----------
+    // ATTACHMENTS
+
     public List<Attachment> getAttachments(int msgId) {
         return attachmentService.getAttachments(msgId);
     }
 
-    // ---------- MAIL / SMTP / SYNC ----------
+    public void addAttachment(int messageId, File file) {
+        attachmentService.addAttachment(messageId, file);
+    }
+
+    public void deleteAttachment(int attachmentId) {
+        attachmentService.deleteAttachment(attachmentId);
+    }
+
+
+    // MAIL / SMTP / SYNC
+
     public void syncInbox(int accountId, int inboxFolderId) {
         MailService mail = new MailService(accountId);
         mail.syncInbox(inboxFolderId);
@@ -111,9 +131,7 @@ public class MailFacade {
                             List<File> attachments) {
 
         MailService mail = new MailService(accountId);
-        mail.sendMessage(
-                sentFolderId, sender, recipient, subject, body, importance, attachments
-        );
+        mail.sendMessage(sentFolderId, sender, recipient, subject, body, importance, attachments);
     }
 
     public void saveDraft(int accountId,

@@ -4,6 +4,7 @@ import emailclient.facade.MailFacade;
 import emailclient.model.*;
 import emailclient.model.enums.FolderType;
 import emailclient.model.enums.Importance;
+import emailclient.service.DemoMailInitializer;
 import emailclient.service.MailService;
 import emailclient.view.SceneManager;
 
@@ -59,6 +60,12 @@ public class MailboxController {
         messageViewContainer.setPrefWidth(0);
     }
 
+    public void refreshCurrentFolder() {
+        Folder folder = foldersList.getSelectionModel().getSelectedItem();
+        if (folder != null) {
+            loadMessages(folder);
+        }
+    }
 
     // Налаштування таблиці
 
@@ -218,7 +225,17 @@ public class MailboxController {
         folders.stream()
                 .filter(f -> f.getType() == FolderType.INBOX)
                 .findFirst()
-                .ifPresent(f -> foldersList.getSelectionModel().select(f));
+                .ifPresent(inbox -> {
+                    // вибираємо INBOX у списку
+                    foldersList.getSelectionModel().select(inbox);
+
+                    // ініціалізуємо демо-листи, якщо INBOX порожній
+                    new DemoMailInitializer()
+                            .initInboxIfEmpty(inbox.getId(), account.getEmailAddress());
+
+                    // одразу оновлюємо список повідомлень
+                    loadMessages(inbox);
+                });
     }
 
     private void loadMessages(Folder folder) {
@@ -248,9 +265,16 @@ public class MailboxController {
     private void openMessageView(Message msg) {
         try {
 
-            if (!msg.isRead()) {
-                facade.markRead(msg.getId(), true);
-                msg.setRead(true);
+            Message fresh = facade.getMessage(msg.getId());
+
+            if (fresh == null) {
+                showError("Повідомлення не знайдено");
+                return;
+            }
+
+            if (!fresh.isRead()) {
+                facade.markRead(fresh.getId(), true);
+                fresh.setRead(true);
                 messagesTable.refresh();
             }
 
@@ -264,7 +288,7 @@ public class MailboxController {
             Folder folder = foldersList.getSelectionModel().getSelectedItem();
             Account acc = accountsList.getSelectionModel().getSelectedItem();
 
-            controller.setMessage(msg, folder, acc, () -> loadMessages(folder));
+            controller.setMessage(fresh, folder, acc, () -> loadMessages(folder));
 
             setRightPanel(pane);
 
@@ -272,6 +296,7 @@ public class MailboxController {
             showError("Не вдалося відкрити повідомлення");
         }
     }
+
 
 
     // Дії

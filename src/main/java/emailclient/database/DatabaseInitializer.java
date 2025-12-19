@@ -45,7 +45,6 @@ public class DatabaseInitializer {
                     .getResourceAsStream("sql/schema.sql");
 
             if (is == null) {
-                System.err.println("[DB INIT] Потік is == null!");
                 return null;
             }
 

@@ -24,10 +24,10 @@ public class Pop3Strategy implements MailProtocol {
 
         messageService.createIncoming(
                 inboxFolderId,
-                "pop3@example.com",
-                "user@example.com",
-                "POP3 Лист",
-                "POP3 Контент"
+                "pop3@gmail.com",
+                "polin009@ukr.net",
+                "POP3 лист",
+                "Тест: надісланий контент."
         );
 
         return messageService.getMessages(inboxFolderId);

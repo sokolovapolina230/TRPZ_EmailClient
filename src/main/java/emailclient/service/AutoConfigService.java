@@ -72,4 +72,11 @@ public class AutoConfigService {
 
         return acc;
     }
+    public boolean isProviderSupported(String email) {
+        if (email == null || !email.contains("@"))
+            return false;
+
+        String domain = email.substring(email.indexOf("@") + 1).toLowerCase();
+        return REGISTRY.containsKey(domain);
+    }
 }

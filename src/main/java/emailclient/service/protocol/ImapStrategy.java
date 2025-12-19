@@ -24,12 +24,11 @@ public class ImapStrategy implements MailProtocol {
 
         messageService.createIncoming(
                 inboxFolderId,
-                "server@example.com",
-                "user@example.com",
+                "server@gmail.com",
+                "polin009@ukr.net",
                 "IMAP лист",
-                "Тест IMAP контент"
+                "Тест: надісланий контент."
         );
-
         return messageService.getMessages(inboxFolderId);
     }
 

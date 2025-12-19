@@ -39,7 +39,7 @@ public class DatabaseConnection {
 
     private DatabaseConnection() { }
 
-    // Повертає нове з’єднання при кожному виклику.
+    // Повертає нове з’єднання при кожному виклику
     public Connection getConnection() {
         try {
             Connection conn = DriverManager.getConnection(URL);

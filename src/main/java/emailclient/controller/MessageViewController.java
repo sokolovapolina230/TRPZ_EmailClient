@@ -13,6 +13,8 @@ import javafx.scene.layout.BorderPane;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.awt.Desktop;
+import java.io.File;
 
 public class MessageViewController {
 
@@ -63,7 +65,40 @@ public class MessageViewController {
             }
         });
 
+        attachmentsList.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                Attachment selected = attachmentsList.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    openAttachment(selected);
+                }
+            }
+        });
+
         updateButtons();
+    }
+
+    private void openAttachment(Attachment attachment) {
+        try {
+            File file = new File(attachment.getFilePath());
+
+            if (!file.exists()) {
+                new Alert(Alert.AlertType.ERROR,
+                        "Файл не знайдено").show();
+                return;
+            }
+
+            if (!Desktop.isDesktopSupported()) {
+                new Alert(Alert.AlertType.ERROR,
+                        "Відкриття файлів не підтримується").show();
+                return;
+            }
+
+            Desktop.getDesktop().open(file);
+
+        } catch (Exception e) {
+            new Alert(Alert.AlertType.ERROR,
+                    "Не вдалося відкрити файл" + e.getMessage()).show();
+        }
     }
 
     private void updateButtons() {
@@ -75,8 +110,13 @@ public class MessageViewController {
         btnMove.setVisible(isDraft);
 
         btnCopy.setVisible(!isDraft && !isTrash);
-        btnDelete.setVisible(!isTrash);
 
+        btnDelete.setVisible(true);
+        if (isTrash) {
+            btnDelete.setText("Видалити назавжди");
+        } else {
+            btnDelete.setText("Видалити");
+        }
     }
 
     @FXML
@@ -146,8 +186,21 @@ public class MessageViewController {
 
     @FXML
     private void handleDeleteMessage() {
-        facade.deleteMessage(message.getId());
+
+        if (folder.getType() == FolderType.TRASH) {
+            facade.deleteMessage(message.getId());
+        } else {
+            Folder trash = folderService.getFoldersByAccount(account.getId())
+                    .stream()
+                    .filter(f -> f.getType() == FolderType.TRASH)
+                    .findFirst()
+                    .orElseThrow();
+
+            facade.moveToTrash(message.getId(), trash.getId());
+        }
+
         refreshCallback.run();
         SceneManager.getMailboxController().clearRightPanel();
     }
+
 }
